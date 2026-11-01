@@ -58,7 +58,8 @@ function iaTenseur(toile, reg) {
   const c = document.createElement("canvas"); c.width = S; c.height = S;
   const ctx = c.getContext("2d", { willReadFrequently: true });
   ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(toile, (toile.width - cote) / 2, (toile.height - cote) / 2, cote, cote, 0, 0, S, S);
+  if (reg.recadrage === "etirer") ctx.drawImage(toile, 0, 0, S, S); // comme à l'entraînement : image entière redimensionnée
+  else ctx.drawImage(toile, (toile.width - cote) / 2, (toile.height - cote) / 2, cote, cote, 0, 0, S, S);
   const d = ctx.getImageData(0, 0, S, S).data;
   const t = new Float32Array(3 * S * S);
   for (let i = 0, p = 0; p < S * S; i += 4, p++) {

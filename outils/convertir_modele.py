@@ -9,6 +9,8 @@ import numpy as np, pandas as pd, torch, timm, onnxruntime as ort
 from huggingface_hub import hf_hub_download, list_repo_files, HfApi
 
 SOURCES_CSV = [
+    "http://ptak.felk.cvut.cz/plants/DanishFungiDataset/FungiCLEF2023_train_metadata_PRODUCTION.csv",
+    "http://ptak.felk.cvut.cz/plants/DanishFungiDataset/DF20_metadata_PROD.csv",
     "http://ptak.felk.cvut.cz/plants/DanishFungiDataset/DF20-train_metadata_PROD-2.csv",
     "http://ptak.felk.cvut.cz/plants/DanishFungiDataset/DF20-train_metadata_PROD.csv",
     "http://ptak.felk.cvut.cz/plants/DanishFungiDataset/DF20-public_test_metadata_PROD-2.csv",
@@ -26,8 +28,19 @@ def etiquettes_depuis_table(df, n):
         print("  table incomplète :", len(m), "classes"); return None
     return [str(m[i]) for i in range(n)]
 
+def liens_readme():
+    try:
+        import re
+        txt = urllib.request.urlopen("https://raw.githubusercontent.com/BohemianVRA/DanishFungiDataset/main/README.md", timeout=60).read().decode()
+        liens = re.findall(r"https?://[^\s)\]\"']+?\.csv", txt)
+        print("Liens CSV du README DF20 :", liens)
+        # DF20 complet d'abord, jamais la version « Mini »
+        return sorted([l for l in liens if "mini" not in l.lower()], key=lambda l: ("df20" not in l.lower(), "train" not in l.lower()))
+    except Exception as e:
+        print("README DF20 illisible :", e); return []
+
 def trouver_etiquettes(n):
-    for url in SOURCES_CSV:
+    for url in liens_readme() + SOURCES_CSV:
         try:
             print("Essai", url)
             data = urllib.request.urlopen(url, timeout=120).read()
@@ -79,12 +92,40 @@ print("Écart max original/converti :", ecart, "| même top-1 :", int(y.argmax()
 if ecart > 1e-2:
     sys.exit("Conversion infidèle")
 
+VALIDATION = ["Amanita_muscaria", "Boletus_edulis", "Cantharellus_cibarius", "Macrolepiota_procera",
+              "Trametes_versicolor", "Laetiporus_sulphureus", "Coprinus_comatus", "Amanita_phalloides"]
+
+def valider(etiquettes, taille):
+    from PIL import Image
+    S = taille[-1]; bons = 0
+    for titre in VALIDATION:
+        try:
+            req = urllib.request.Request("https://en.wikipedia.org/api/rest_v1/page/summary/" + titre,
+                                         headers={"User-Agent": "ChampiVerif/1.0 (validation modele; github.com/elodie24000)"})
+            src = json.load(urllib.request.urlopen(req, timeout=60))["originalimage"]["source"]
+            req = urllib.request.Request(src, headers={"User-Agent": "ChampiVerif/1.0"})
+            img = Image.open(io.BytesIO(urllib.request.urlopen(req, timeout=60).read())).convert("RGB").resize((S, S), Image.BILINEAR)
+            x = (np.asarray(img, dtype=np.float32) / 255 - 0.5) / 0.5
+            with torch.no_grad():
+                p = torch.softmax(model(torch.from_numpy(x.transpose(2, 0, 1)[None].copy())), 1)[0].numpy()
+            top = [(etiquettes[i], round(float(p[i]), 2)) for i in p.argsort()[::-1][:3]]
+            ok = " ".join(top[0][0].split()[:2]).lower() == titre.replace("_", " ").lower()
+            bons += ok
+            print(("OK  " if ok else "NON ") + titre, top)
+        except Exception as e:
+            print("?   " + titre, e)
+    print("Validation :", bons, "/", len(VALIDATION))
+    return bons
+
+if not etiquettes or len(etiquettes) != model.num_classes:
+    sys.exit("Liste des espèces absente ou incomplète : à récupérer autrement")
+if valider(etiquettes, taille) < 5:
+    sys.exit("La liste des espèces ne correspond pas au modèle : rien n'est enregistré")
+
 json.dump({
     "source": REPO, "licence": "CC BY-NC 4.0 — Picek et al., Danish Fungi 2020 (WACV 2022)",
-    "taille": list(taille[1:]), "moyenne": list(pc["mean"]), "ecart_type": list(pc["std"]),
-    "crop_pct": pc.get("crop_pct"), "interpolation": pc.get("interpolation"),
+    "taille": list(taille[1:]), "moyenne": [0.5, 0.5, 0.5], "ecart_type": [0.5, 0.5, 0.5],
+    "recadrage": "etirer",
     "especes": etiquettes,
 }, open("modele/df20.json", "w"), ensure_ascii=False)
 print("Taille du modèle :", round(os.path.getsize("modele/df20.onnx") / 1e6, 1), "Mo")
-if not etiquettes or len(etiquettes) != model.num_classes:
-    sys.exit("Liste des espèces absente ou incomplète : à récupérer autrement")
