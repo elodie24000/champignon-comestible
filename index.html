@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Champi'Vérif</title>
+  <meta name="description" content="Vérifier un champignon pas à pas, connaître les sosies dangereux, suivre les saisons et recenser ses cueillettes.">
+  <meta name="theme-color" content="#3d5a3a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="entete">
+    <div class="marque">🍄 Champi'Vérif</div>
+    <button class="btn-urgence" id="btnUrgence" type="button">🚨 Urgence</button>
+  </header>
+  <p class="bandeau">Aucune application ne peut garantir qu'un champignon est comestible. Faites toujours vérifier votre cueillette par un pharmacien ou un mycologue.</p>
+
+  <main>
+    <!-- IDENTIFIER -->
+    <section id="vue-identifier" class="vue active">
+      <div id="etape"></div>
+    </section>
+
+    <!-- SAISON -->
+    <section id="vue-saison" class="vue">
+      <h1>Au fil des saisons</h1>
+      <div class="mois-choix" id="moisChoix"></div>
+      <div id="saisonListe"></div>
+    </section>
+
+    <!-- CARTE -->
+    <section id="vue-carte" class="vue">
+      <h1>Mes cueillettes</h1>
+      <div class="bascule">
+        <button type="button" class="actif" data-mode="prive">Ma carte (précise)</button>
+        <button type="button" data-mode="public">Vue partagée (floutée)</button>
+      </div>
+      <div id="carte"></div>
+      <p class="aide" id="carteAide"></p>
+      <div id="carnet"></div>
+    </section>
+
+    <!-- FICHES -->
+    <section id="vue-fiches" class="vue">
+      <h1>Fiches espèces</h1>
+      <input type="search" id="recherche" placeholder="Rechercher (cèpe, amanite…)" autocomplete="off">
+      <div id="fichesListe"></div>
+    </section>
+  </main>
+
+  <nav class="onglets">
+    <button type="button" data-vue="identifier" class="actif"><span>📷</span>Vérifier</button>
+    <button type="button" data-vue="saison"><span>🗓️</span>Saison</button>
+    <button type="button" data-vue="carte"><span>🗺️</span>Carnet</button>
+    <button type="button" data-vue="fiches"><span>📖</span>Fiches</button>
+  </nav>
+
+  <dialog id="modale"><div id="modaleContenu"></div><button type="button" class="fermer" id="modaleFermer" aria-label="Fermer">✕</button></dialog>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="especes.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

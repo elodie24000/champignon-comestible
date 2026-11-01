@@ -1,0 +1,11 @@
+{
+  "name": "Champi'Vérif",
+  "short_name": "Champi'Vérif",
+  "description": "Vérifier un champignon pas à pas, connaître les sosies dangereux et recenser ses cueillettes.",
+  "lang": "fr",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f6f3ec",
+  "theme_color": "#3d5a3a",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
