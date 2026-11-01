@@ -47,6 +47,8 @@ Pour publier une mise à jour : pousser le contenu sur la branche `gh-pages`.
   - L'appli fait la moyenne sur toutes les photos exploitables.
   - Si la meilleure piste est sous **50 %** de certitude, elle répond « je ne peux pas me prononcer d'après la photo ».
   - Toute espèce toxique ou mortelle (ou tout genre mortel, comme *Amanita*) évoquée à **5 % ou plus** fait passer le verdict au rouge. L'IA peut aggraver un verdict, jamais l'adoucir.
+- **Validation automatique** (photos Wikipédia) : amanite tue-mouches, girolle, coulemelle, polypore soufré et coprin chevelu ont été reconnus à 94-100 %. Le **cèpe a été manqué** (pris pour un plutée à 70 %, et un cortinaire à 30 %, ce qui aurait déclenché l'alerte rouge).
+- **Couverture :** 26 des 29 espèces des fiches sont connues du modèle. Manquent l'oronge, le clitocybe de l'olivier et le cortinaire rocou, mais le genre *Cortinarius* déclenche quand même l'alerte.
 - **Limites :** les espèces sont danoises, et l'IA se trompe davantage sur les espèces méridionales. Certaines confusions sont impossibles à lever sur photo : petites lépiotes, cortinaires, amanites blanches jeunes. L'IA ne fait que proposer des pistes.
 
 ## Prochaines étapes envisagées

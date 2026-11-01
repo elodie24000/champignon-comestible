@@ -81,7 +81,8 @@ async function reconnaitre(toiles) {
     somme = somme ? somme.map((v, i) => v + p[i]) : p;
   }
   const probas = somme.map((v) => v / toiles.length);
-  return probas.map((p, i) => ({ p, latin: String(reglages.especes[i]) }))
+  // « Boletus edulis Bull. » → « Boletus edulis » (on retire le nom des auteurs)
+  return probas.map((p, i) => ({ p, latin: String(reglages.especes[i]).split(/\s+/).slice(0, 2).join(" ") }))
     .sort((a, b) => b.p - a.p).slice(0, 5)
     .map((x) => {
       const mots = x.latin.toLowerCase().split(/\s+/);
