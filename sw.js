@@ -1,7 +1,7 @@
 // Cache hors connexion : l'appli et les fiches restent disponibles en forêt.
-const VERSION = "champiverif-v1";
+const VERSION = "champiverif-v2";
 const FICHIERS = ["./", "index.html", "style.css", "app.js", "especes.js", "manifest.webmanifest", "icon.svg",
-  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css", "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"];
+  "vendor/leaflet/leaflet.css", "vendor/leaflet/leaflet.js"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(FICHIERS)).then(() => self.skipWaiting()));
@@ -11,7 +11,7 @@ self.addEventListener("activate", (e) => {
     .then(() => self.clients.claim()));
 });
 self.addEventListener("fetch", (e) => {
-  if (e.request.method !== "GET" || e.request.url.includes("tile.openstreetmap.org")) return;
+  if (e.request.method !== "GET" || e.request.url.includes("tile.openstreetmap.org") || e.request.url.includes("supabase.co")) return;
   // Réseau d'abord (pour recevoir les mises à jour), cache si pas de réseau
   e.respondWith(fetch(e.request).then((r) => {
     const copie = r.clone();

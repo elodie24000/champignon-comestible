@@ -12,6 +12,41 @@ const moisCourant = new Date().getMonth() + 1;
 const $ = (s) => document.querySelector(s);
 const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+// ---------- Recensement partagé (Supabase) ----------
+// Clé publique « publishable » : elle ne permet QUE de déposer une observation
+// et de lire les totaux par mailles (règles de sécurité côté base).
+const SUPABASE_URL = "https://ulvrwtwxzhlrplvbcsrd.supabase.co";
+const SUPABASE_CLE = "sb_publishable_dxH_p3Wo4Suin-QejMzRVg_NQ_MjwfQ";
+const ENTETES_SB = { apikey: SUPABASE_CLE, "Content-Type": "application/json" };
+const CLE_PARTAGE = "champiverif.partage";
+function lirePref(cle) { try { return localStorage.getItem(cle); } catch { return null; } }
+function ecrirePref(cle, v) { try { localStorage.setItem(cle, v); } catch { /* sans effet */ } }
+
+async function synchroniser() {
+  if (!navigator.onLine) return;
+  const c = lireCarnet();
+  const attente = c.filter((o) => o.partage === "attente" && o.lat != null);
+  if (!attente.length) return;
+  for (const o of attente) {
+    try {
+      const r = await fetch(SUPABASE_URL + "/rest/v1/champi_observations", {
+        method: "POST", headers: { ...ENTETES_SB, Prefer: "return=minimal" },
+        body: JSON.stringify({
+          observe_le: o.date,
+          // Arrondi à ~1 km avant envoi : le coin exact ne quitte jamais le téléphone
+          lat: Math.round(o.lat * 100) / 100, lon: Math.round(o.lon * 100) / 100,
+          verdict: o.verdict, pistes: o.pistes.slice(0, 6),
+        }),
+      });
+      if (r.ok) o.partage = "ok";
+      else if (r.status >= 400 && r.status < 500) o.partage = "refuse"; // ex. hors de France : inutile de réessayer
+    } catch { /* hors ligne : on réessaiera */ }
+  }
+  ecrireCarnet(c);
+  if (document.querySelector("#vue-carte.active")) rendreCarte();
+}
+window.addEventListener("online", synchroniser);
+
 // ---------- Stockage local (try/catch : navigation privée, quota…) ----------
 const CLE_CARNET = "champiverif.carnet.v1";
 function lireCarnet() {
@@ -262,6 +297,8 @@ function etapeVerdict() {
     <h3>Ce que ça pourrait être (${liste.length})</h3>
     <div class="cartes">${liste.map((e) => carteEspece(e)).join("") || "<p>Aucune espèce.</p>"}</div>
     <div class="actions">
+      <label class="case"><input type="checkbox" id="partager" ${lirePref(CLE_PARTAGE) === "non" ? "" : "checked"}>
+        <span>Participer au recensement des champignons : envoyer anonymement la date, le résultat et une position arrondie à 1 km. Les autres ne voient que des totaux par zones de 10 km.</span></label>
       <button type="button" class="btn principal" id="enregistrer">📍 Enregistrer dans mon carnet</button>
       <button type="button" class="btn" id="recommencer">Nouveau champignon</button>
     </div>
@@ -311,6 +348,8 @@ function ouvrirFiche(id) {
 function enregistrerObservation() {
   const btn = $("#enregistrer");
   btn.disabled = true; btn.textContent = "Localisation…";
+  const partager = $("#partager").checked;
+  ecrirePref(CLE_PARTAGE, partager ? "oui" : "non");
   const finir = (pos) => {
     const obs = {
       id: Date.now().toString(36),
@@ -321,10 +360,12 @@ function enregistrerObservation() {
       titre: session.verdict.titre.replace(/<[^>]+>/g, ""),
       pistes: session.liste.slice(0, 4).map((e) => e.id),
       vignette: (Object.values(session.photos).find((p) => p.ok) || {}).vignette || null,
+      partage: partager && pos ? "attente" : null,
     };
     const c = lireCarnet(); c.unshift(obs);
     const ok = ecrireCarnet(c) || ecrireCarnet(c.map((o, i) => (i ? o : { ...o, vignette: null })));
     btn.textContent = ok ? (pos ? "✓ Enregistré avec position" : "✓ Enregistré (sans position)") : "Mémoire du téléphone pleine";
+    if (ok && obs.partage) synchroniser();
   };
   if (!navigator.geolocation) return finir(null);
   navigator.geolocation.getCurrentPosition(finir, () => finir(null), { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
@@ -408,24 +449,15 @@ function rendreCarte() {
       geo.forEach((o) => L.circleMarker([o.lat, o.lon], {
         radius: 8, color: "#fff", weight: 2, fillColor: COUL_VERDICT[o.verdict] || "#555", fillOpacity: 0.9,
       }).bindPopup(`<strong>${esc(o.titre)}</strong><br>${new Date(o.date).toLocaleDateString("fr-FR")}`).addTo(calque));
+      if (geo.length) carte.fitBounds(geo.map((o) => [o.lat, o.lon]), { maxZoom: 13, padding: [30, 30] });
     } else {
-      const mailles = {};
-      geo.forEach((o) => {
-        const k = Math.floor(o.lat / MAILLE) + ":" + Math.floor(o.lon / MAILLE);
-        mailles[k] = (mailles[k] || 0) + 1;
-      });
-      Object.entries(mailles).forEach(([k, n]) => {
-        const [a, b] = k.split(":").map(Number);
-        L.rectangle([[a * MAILLE, b * MAILLE], [(a + 1) * MAILLE, (b + 1) * MAILLE]], {
-          color: "#3d5a3a", weight: 1, fillOpacity: Math.min(0.15 + n * 0.1, 0.7),
-        }).bindPopup(`${n} observation${n > 1 ? "s" : ""} dans cette maille`).addTo(calque);
-      });
+      rendreCollectif();
     }
-    if (geo.length) carte.fitBounds(geo.map((o) => [o.lat, o.lon]), { maxZoom: 13, padding: [30, 30] });
   }
   $("#carteAide").textContent = modeCarte === "prive"
     ? "Points précis : visibles uniquement sur votre téléphone."
-    : "Vue partagée : les positions sont regroupées par mailles d'environ 10 km, pour ne jamais dévoiler les coins de cueillette.";
+    : "Recensement collectif : toutes les observations partagées, regroupées par mailles d'environ 10 km pour ne jamais dévoiler les coins de cueillette.";
+  if (modeCarte === "public") return;
 
   // Évolution mensuelle + liste
   const parMois = Array(12).fill(0);
@@ -439,7 +471,8 @@ function rendreCarte() {
       <ul class="liste-obs">${obs.map((o) => `<li>
         ${o.vignette ? `<img src="${o.vignette}" alt="">` : `<span class="ico">🍄</span>`}
         <div><strong class="v-${o.verdict}">${esc(o.titre)}</strong>
-        <small>${new Date(o.date).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })}${o.lat == null ? " · sans position" : ""}</small></div>
+        <small>${new Date(o.date).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })}${o.lat == null ? " · sans position" : ""}${
+          o.partage === "ok" ? " · ☁️ partagé" : o.partage === "attente" ? " · ⏳ en attente de réseau" : ""}</small></div>
         <button type="button" class="suppr" data-id="${o.id}" aria-label="Supprimer">🗑</button></li>`).join("")}</ul>`;
   $("#carnet").querySelectorAll(".suppr").forEach((b) => b.addEventListener("click", () => {
     if (!confirm("Supprimer cette observation ?")) return;
@@ -447,7 +480,49 @@ function rendreCarte() {
   }));
 }
 
+// Vue collective : totaux par mailles, lus dans la base partagée
+async function rendreCollectif() {
+  $("#carnet").innerHTML = `<p class="aide">Chargement du recensement…</p>`;
+  let lignes;
+  try {
+    const r = await fetch(SUPABASE_URL + "/rest/v1/rpc/champi_mailles", { method: "POST", headers: ENTETES_SB, body: "{}" });
+    if (!r.ok) throw new Error(r.status);
+    lignes = await r.json();
+  } catch {
+    $("#carnet").innerHTML = `<p class="avert">Recensement indisponible (pas de réseau ?). Réessayez plus tard.</p>`;
+    return;
+  }
+  if (modeCarte !== "public") return; // l'utilisateur a changé de vue entre-temps
+  const mailles = {}, parMois = Array(12).fill(0), parEspece = {};
+  let total = 0;
+  for (const l of lignes) {
+    const k = l.lat_maille.toFixed(1) + ":" + l.lon_maille.toFixed(1);
+    (mailles[k] ||= { lat: l.lat_maille, lon: l.lon_maille, n: 0, especes: new Set() });
+    mailles[k].n += l.n; (l.pistes || []).forEach((p) => { mailles[k].especes.add(p); parEspece[p] = (parEspece[p] || 0) + l.n; });
+    parMois[l.mois - 1] += l.n; total += l.n;
+  }
+  calque.clearLayers();
+  Object.values(mailles).forEach((m) => {
+    const noms = [...m.especes].map((id) => PAR_ID[id] ? PAR_ID[id].nom : null).filter(Boolean);
+    L.rectangle([[m.lat, m.lon], [m.lat + MAILLE, m.lon + MAILLE]], {
+      color: "#3d5a3a", weight: 1, fillColor: "#3d5a3a", fillOpacity: Math.min(0.15 + m.n * 0.08, 0.7),
+    }).bindPopup(`<strong>${m.n} observation${m.n > 1 ? "s" : ""}</strong>${noms.length ? "<br>Pistes : " + esc(noms.slice(0, 6).join(", ")) : ""}`).addTo(calque);
+  });
+  const pts = Object.values(mailles);
+  if (pts.length) carte.fitBounds(pts.flatMap((m) => [[m.lat, m.lon], [m.lat + MAILLE, m.lon + MAILLE]]), { maxZoom: 11, padding: [20, 20] });
+  const max = Math.max(1, ...parMois);
+  const top = Object.entries(parEspece).sort((a, b) => b[1] - a[1]).slice(0, 8).filter(([id]) => PAR_ID[id]);
+  $("#carnet").innerHTML = !total
+    ? `<p class="intro">Aucune observation partagée pour l'instant. Soyez le premier !</p>`
+    : `<h3>${total} observation${total > 1 ? "s" : ""} partagée${total > 1 ? "s" : ""} (12 derniers mois)</h3>
+      <div class="histo">${parMois.map((n, i) => `<div title="${n} en ${MOIS_LONG[i]}"><span style="height:${(n / max) * 100}%"></span><small>${MOIS[i][0].toUpperCase()}</small></div>`).join("")}</div>
+      ${top.length ? `<h3>Pistes les plus fréquentes</h3><div class="chips">${top.map(([id, n]) =>
+        `<button type="button" class="chip-espece ${STATUT[PAR_ID[id].statut].classe}" data-id="${id}">${esc(PAR_ID[id].nom)} · ${n}</button>`).join("")}</div>` : ""}`;
+  brancherCartes($("#carnet"));
+}
+
 // ---------- Démarrage ----------
+synchroniser();
 nouvelleSession();
 rendreSaison();
 rendreFiches();

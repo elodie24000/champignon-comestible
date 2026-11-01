@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -37,7 +37,7 @@
       <h1>Mes cueillettes</h1>
       <div class="bascule">
         <button type="button" class="actif" data-mode="prive">Ma carte (précise)</button>
-        <button type="button" data-mode="public">Vue partagée (floutée)</button>
+        <button type="button" data-mode="public">Recensement collectif</button>
       </div>
       <div id="carte"></div>
       <p class="aide" id="carteAide"></p>
@@ -61,7 +61,7 @@
 
   <dialog id="modale"><div id="modaleContenu"></div><button type="button" class="fermer" id="modaleFermer" aria-label="Fermer">✕</button></dialog>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="vendor/leaflet/leaflet.js"></script>
   <script src="especes.js"></script>
   <script src="app.js"></script>
 </body>

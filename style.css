@@ -177,3 +177,5 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
   .photo { min-height: 130px; padding: 8px 4px; }
   .choix { grid-template-columns: 1fr; }
 }
+.case { display: flex; gap: 10px; align-items: flex-start; font-size: .88rem; color: var(--doux); background: var(--carte); border: 1px solid var(--ligne); border-radius: 12px; padding: 10px 12px; }
+.case input { width: 20px; height: 20px; flex: none; margin-top: 2px; accent-color: var(--vert); }

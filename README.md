@@ -16,7 +16,16 @@ Application web (installable sur téléphone, fonctionne hors connexion) pour **
 | 📖 **Fiches** | 29 espèces du Périgord, dont 14 comestibles, 9 toxiques et 6 mortelles ou groupes mortels, avec critères, saison et « ne pas confondre avec ». |
 | 🚨 **Urgence** | 15 / 112, centre antipoison de Bordeaux, conduite à tenir. |
 
-Tout est **gratuit** : il n'y a ni serveur ni clé d'API, et les données restent dans le téléphone.
+**Adresse de l'application :** https://elodie24000.github.io/champignon-comestible/ (hébergement gratuit GitHub Pages, branche `gh-pages`).
+
+Tout est **gratuit**. Photos et positions exactes restent dans le téléphone.
+
+### Recensement collectif (Supabase)
+
+- Si la case « Participer au recensement » est cochée, l'application envoie la date, le verdict, les pistes d'espèces et une **position arrondie à ~1 km**. Hors réseau, l'envoi attend le retour de la connexion.
+- Table `champi_observations` dans le projet Supabase **« CIDIL logistique »**, car le projet « Croc'Paysage commandes » refusait la connexion et l'offre gratuite est limitée à 2 projets. La table est indépendante du reste.
+- **Sécurité :** n'importe qui peut déposer une observation, mais **personne ne peut relire les lignes**. La seule lecture publique est la fonction `champi_mailles()`, qui renvoie des totaux par mailles de 0,1° (~10 km) et par mois.
+- Pour exporter les données brutes (recherche) : tableau de bord Supabase → Table Editor → `champi_observations` → Export CSV.
 
 ## Fichiers
 
@@ -24,7 +33,10 @@ Tout est **gratuit** : il n'y a ni serveur ni clé d'API, et les données resten
 - `especes.js` : **la base d'espèces et les questions**. C'est le fichier à enrichir et à faire relire.
 - `sw.js`, `manifest.webmanifest`, `icon.svg` : installation et fonctionnement hors connexion
 
+- `vendor/leaflet/` : bibliothèque de carte (Leaflet 1.9.4, licence BSD), embarquée pour fonctionner sans CDN
+
 Pour tester en local : `python3 -m http.server`, puis ouvrir http://localhost:8000.
+Pour publier une mise à jour : pousser le contenu sur la branche `gh-pages`.
 
 ## Reconnaissance par photo : où en est-on ?
 
@@ -41,7 +53,7 @@ Quelle que soit la source, une photo **ne permet pas** de distinguer certaines e
 ## Prochaines étapes envisagées
 
 1. Relecture de `especes.js` par une société mycologique ou un pharmacien, puis ajout d'espèces.
-2. Carnet partagé (Supabase) pour le recensement collectif, avec positions floutées en public.
+2. ~~Carnet partagé~~ (fait) : ajouter une protection anti-spam si l'appli est diffusée largement.
 3. Modèle de reconnaissance photo hors ligne (DF20), affiché comme simple suggestion.
 4. Export vers iNaturalist / GBIF pour la recherche.
 5. Ajout d'illustrations sous licence libre (Wikimedia Commons, avec crédits).
