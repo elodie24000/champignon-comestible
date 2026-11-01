@@ -1,0 +1,24 @@
+name: Convertir le modèle de reconnaissance
+on:
+  workflow_dispatch:
+  push:
+    paths: ["outils/convertir_modele.py", ".github/workflows/modele.yml"]
+permissions:
+  contents: write
+jobs:
+  convertir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install timm==1.0.12 huggingface_hub==0.26.2 onnx==1.17.0 onnxruntime==1.20.1 numpy==1.26.4
+      - run: python outils/convertir_modele.py
+      - name: Enregistrer le modèle dans le dépôt
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add modele/
+          git commit -m "Modèle de reconnaissance converti (Danish Fungi 2020)" || exit 0
+          git push
