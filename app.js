@@ -147,7 +147,7 @@ async function analyserPhoto(fichier) {
     const cv2 = document.createElement("canvas");
     cv2.width = Math.round(img.naturalWidth * kv); cv2.height = Math.round(img.naturalHeight * kv);
     cv2.getContext("2d").drawImage(img, 0, 0, cv2.width, cv2.height);
-    return { ok: raisons.length === 0, raisons, vignette: cv2.toDataURL("image/jpeg", 0.7),
+    return { ok: raisons.length === 0, raisons, vignette: cv2.toDataURL("image/jpeg", 0.7), toile: cv,
       mesures: { nettete: Math.round(nettete), luminosite: Math.round(moy), contraste: Math.round(contraste) } };
   } catch {
     return { ok: false, raisons: ["fichier illisible"], vignette: null, mesures: {} };
@@ -183,7 +183,13 @@ function etapePhotos() {
     session.photos[inp.dataset.cle] = await analyserPhoto(f);
     etapePhotos();
   }));
-  $("#versQuestions").addEventListener("click", () => { session.iq = 0; etapeQuestion(); });
+  $("#versQuestions").addEventListener("click", () => {
+    // La reconnaissance photo tourne en arrière-plan pendant les questions
+    const toiles = Object.values(session.photos).filter((p) => p.ok && p.toile).map((p) => p.toile);
+    session.ia = toiles.length && typeof reconnaitre === "function"
+      ? reconnaitre(toiles).catch((e) => ({ erreur: String(e && e.message || e) })) : null;
+    session.iq = 0; etapeQuestion();
+  });
 }
 
 function messagePhotos() {
@@ -282,10 +288,17 @@ function calculerVerdict(rep, liste) {
     texte: "Vos réponses ne correspondent à aucune espèce dangereuse <em>de la base</em>, mais la base n'en contient qu'une partie. <strong>Faites vérifier par un pharmacien ou un mycologue avant toute consommation.</strong>" };
 }
 
-function etapeVerdict() {
+async function etapeVerdict() {
   const rep = session.reponses;
   const liste = candidats(rep).sort((a, b) => score(b, rep) - score(a, rep));
-  const v = calculerVerdict(rep, liste);
+  let v = calculerVerdict(rep, liste);
+  let blocIA = "";
+  if (session.ia) {
+    $("#etape").innerHTML = `<div class="chargement"><span class="roue"></span><p><strong>Analyse de la photo…</strong><br>
+      <small>La première fois, l'application télécharge son modèle de reconnaissance (environ 30 Mo). Ensuite, il fonctionne sans réseau.</small></p></div>`;
+    const res = await session.ia;
+    ({ v, blocIA } = fusionnerIA(v, res, liste));
+  }
   session.verdict = v; session.liste = liste;
   const avertBase = (rep.baseDegagee !== "oui" && rep.dessous === "lames")
     ? `<p class="avert">⚠️ La base du pied n'a pas été dégagée : <strong>impossible d'écarter les amanites mortelles</strong>, dont la volve reste souvent sous terre.</p>` : "";
@@ -293,6 +306,7 @@ function etapeVerdict() {
   $("#etape").innerHTML = `
     <div class="verdict ${v.classe}"><strong>${v.titre}</strong><p>${v.texte}</p></div>
     ${avertBase}
+    ${blocIA}
     ${photosOk < 3 ? `<p class="aide">${photosOk}/3 photo(s) exploitables : pour un avis d'expert, apportez le champignon entier.</p>` : ""}
     <h3>Ce que ça pourrait être (${liste.length})</h3>
     <div class="cartes">${liste.map((e) => carteEspece(e)).join("") || "<p>Aucune espèce.</p>"}</div>
@@ -306,6 +320,38 @@ function etapeVerdict() {
   brancherCartes($("#etape"));
   $("#recommencer").addEventListener("click", nouvelleSession);
   $("#enregistrer").addEventListener("click", enregistrerObservation);
+}
+
+function fusionnerIA(v, res, liste) {
+  if (!res || res.erreur) {
+    return { v, blocIA: `<p class="aide">📷 Reconnaissance photo indisponible pour le moment${navigator.onLine ? "" : " (pas de réseau pour le premier téléchargement)"} : résultat basé sur vos réponses.</p>` };
+  }
+  const pct = (p) => Math.round(p * 100) + " %";
+  const nom = (r) => r.fiche ? r.fiche.nom + " (" + r.latin + ")" : r.latin;
+  const dangers = res.filter((r) => r.danger && r.p >= IA_SEUIL_DANGER);
+  if (dangers.length) {
+    const txt = `La photo évoque aussi : <strong>${esc(dangers.map((r) => nom(r) + " " + pct(r.p)).join(", "))}</strong>.`;
+    v = v.classe === "rouge"
+      ? { ...v, texte: v.texte + " " + txt }
+      : { classe: "rouge", titre: "🔴 La photo ressemble à une espèce dangereuse", texte: txt + " Ne consommez pas sans l'avis d'un expert." };
+  }
+  const haut = res[0];
+  const idsQuestions = new Set(liste.map((e) => e.id));
+  const ligne = (r) => {
+    const st = r.statut ? STATUT[r.statut] : null;
+    const genre = r.risqueGenre ? `<small class="genre-risque">Genre ${esc(r.latin.split(" ")[0])} : contient des espèces ${r.risqueGenre === "mortel" ? "mortelles" : "toxiques"}</small>` : "";
+    const horsReponses = r.id && !idsQuestions.has(r.id) ? `<small class="genre-risque">Ne correspond pas à vos réponses</small>` : "";
+    return `<li><div class="ia-barre"><span style="width:${Math.max(2, Math.round(r.p * 100))}%"></span></div>
+      <div class="ia-ligne">${st ? `<span class="badge ${st.classe}">${st.label}</span>` : ""}
+      ${r.id ? `<button type="button" class="lien-fiche chip-espece" data-id="${r.id}">${esc(nom(r))}</button>` : `<span>${esc(r.latin)} <small>(pas de fiche)</small></span>`}
+      <strong>${pct(r.p)}</strong></div>${genre}${horsReponses}</li>`;
+  };
+  const entete = haut.p < IA_SEUIL_CERTITUDE
+    ? `<p><strong>⚪ Je ne peux pas me prononcer d'après la photo</strong> : certitude trop faible (${pct(haut.p)}). Reprenez des photos plus nettes, ou fiez-vous aux questions.</p>`
+    : `<p>La photo ressemble surtout à : <strong>${esc(nom(haut))}</strong> (${pct(haut.p)}).</p>`;
+  return { v, blocIA: `<div class="bloc-ia"><h3>📷 Ce que la photo évoque (intelligence artificielle)</h3>${entete}
+    <ul class="ia-liste">${res.slice(0, 3).map(ligne).join("")}</ul>
+    <p class="aide">Modèle Danish Fungi 2020, entraîné sur des champignons du Danemark : il se trompe régulièrement, surtout sur les espèces du Sud.</p></div>` };
 }
 
 function carteEspece(e) {

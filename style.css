@@ -179,3 +179,13 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
 }
 .case { display: flex; gap: 10px; align-items: flex-start; font-size: .88rem; color: var(--doux); background: var(--carte); border: 1px solid var(--ligne); border-radius: 12px; padding: 10px 12px; }
 .case input { width: 20px; height: 20px; flex: none; margin-top: 2px; accent-color: var(--vert); }
+.chargement { display: flex; gap: 14px; align-items: center; padding: 30px 0; }
+.roue { width: 34px; height: 34px; border: 4px solid var(--ligne); border-top-color: var(--vert); border-radius: 50%; animation: tourne 1s linear infinite; flex: none; }
+@keyframes tourne { to { transform: rotate(360deg); } }
+.bloc-ia { background: var(--carte); border: 1px solid var(--ligne); border-radius: 14px; padding: 4px 14px 10px; margin: 12px 0; }
+.ia-liste { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.ia-ligne { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ia-ligne strong { margin-left: auto; }
+.ia-barre { height: 5px; background: var(--gris-clair); border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+.ia-barre span { display: block; height: 100%; background: var(--vert); }
+.genre-risque { display: block; color: var(--rouge); font-size: .78rem; }
