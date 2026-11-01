@@ -38,22 +38,21 @@ Tout est **gratuit**. Photos et positions exactes restent dans le téléphone.
 Pour tester en local : `python3 -m http.server`, puis ouvrir http://localhost:8000.
 Pour publier une mise à jour : pousser le contenu sur la branche `gh-pages`.
 
-## Reconnaissance par photo : où en est-on ?
+## Reconnaissance par photo (intelligence artificielle)
 
-La v1 **n'identifie pas l'espèce à partir de la photo**. Elle contrôle seulement la qualité de l'image. L'identification se fait par les questions, ce qui est plus sûr pour un premier prototype. Les pistes pour ajouter une IA de reconnaissance :
-
-| Source | Gratuit ? | Remarques |
-|---|---|---|
-| **Danish Fungi 2020 / FungiTastic** (jeux de données ouverts de l'Atlas danois des champignons, environ 300 000 photos validées par des experts) | Oui, données et modèles publiés pour la recherche | Peut tourner **dans le téléphone, hors ligne**. Espèces d'Europe du Nord, en bonne partie communes avec la France. C'est la meilleure piste gratuite, mais elle demande du travail d'intégration. |
-| **iNaturalist** | L'API de reconnaissance n'est pas ouverte librement | On peut en revanche publier les observations sur iNaturalist pour obtenir une validation **par la communauté**, ce qui est gratuit. |
-| API commerciales (ex. mushroom.id / Kindwise) | Payant après un quota d'essai | Simple à brancher. |
-
-Quelle que soit la source, une photo **ne permet pas** de distinguer certaines espèces : petites lépiotes, cortinaires, jeunes amanites blanches, base de pied cachée. L'IA ne peut donc que **proposer des pistes**. Les questions et la règle « le danger d'abord » restent indispensables.
+- **Modèle :** EfficientNet-B0 entraîné par les chercheurs du jeu de données *Danish Fungi 2020* (Picek et al., WACV 2022). Il reconnaît 1 604 espèces à partir d'environ 300 000 photos validées par des experts. Licence **CC BY-NC 4.0**, utilisable gratuitement mais pas pour un usage commercial.
+- **Conversion :** `outils/convertir_modele.py`, exécuté par GitHub Actions (`.github/workflows/modele.yml`), télécharge le modèle, le convertit au format ONNX, vérifie que la copie donne les mêmes réponses que l'original, puis enregistre `modele/df20.onnx` (24 Mo) et `modele/df20.json` (liste des espèces).
+- **Dans le téléphone :** `ia.js` exécute le modèle sur place avec onnxruntime-web (`vendor/ort/`, licence MIT). Le modèle est téléchargé une seule fois, puis fonctionne hors connexion.
+- **Règles de sécurité :**
+  - L'appli fait la moyenne sur toutes les photos exploitables.
+  - Si la meilleure piste est sous **50 %** de certitude, elle répond « je ne peux pas me prononcer d'après la photo ».
+  - Toute espèce toxique ou mortelle (ou tout genre mortel, comme *Amanita*) évoquée à **5 % ou plus** fait passer le verdict au rouge. L'IA peut aggraver un verdict, jamais l'adoucir.
+- **Limites :** les espèces sont danoises, et l'IA se trompe davantage sur les espèces méridionales. Certaines confusions sont impossibles à lever sur photo : petites lépiotes, cortinaires, amanites blanches jeunes. L'IA ne fait que proposer des pistes.
 
 ## Prochaines étapes envisagées
 
 1. Relecture de `especes.js` par une société mycologique ou un pharmacien, puis ajout d'espèces.
 2. ~~Carnet partagé~~ (fait) : ajouter une protection anti-spam si l'appli est diffusée largement.
-3. Modèle de reconnaissance photo hors ligne (DF20), affiché comme simple suggestion.
+3. ~~Reconnaissance photo hors ligne~~ (fait) : l'évaluer sur de vraies photos du Périgord, et envisager un modèle plus précis.
 4. Export vers iNaturalist / GBIF pour la recherche.
 5. Ajout d'illustrations sous licence libre (Wikimedia Commons, avec crédits).
