@@ -104,7 +104,7 @@ const ESPECES = [
       "Chapeau brun foncé, velouté",
     ],
     confusions: ["bolet-satan", "bolet-blafard"],
-    note: "Toxique cru : à consommer uniquement bien cuit. Pores rouges + bleuissement = toujours faire vérifier, à cause du bolet de Satan.",
+    note: "Comestible seulement après une cuisson prolongée (une vingtaine de minutes recommandée), qualité jugée moyenne. Pores rouges + bleuissement = toujours faire vérifier, à cause du bolet de Satan.",
   },
   {
     id: "bolet-blafard", nom: "Bolet blafard", latin: "Suillellus luridus",
@@ -117,7 +117,7 @@ const ESPECES = [
       "Chair rouge vineux à la base du pied",
     ],
     confusions: ["bolet-pied-rouge", "bolet-satan"],
-    note: "Mangé bien cuit par certains, mais provoque des malaises s'il est consommé avec de l'alcool : classé ici à éviter.",
+    note: "Comestibilité controversée : mangé bien cuit selon certains auteurs, déconseillé par d'autres. Des malaises avec l'alcool ont été signalés, sans que la cause soit démontrée. Classé ici « à éviter » par prudence.",
   },
 
   // ---------- CHANTERELLES & CO ----------
