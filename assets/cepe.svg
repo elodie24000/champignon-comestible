@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Petit cèpe">
+  <ellipse cx="100" cy="184" rx="62" ry="9" fill="#6b5a3e" opacity=".12"/>
+  <!-- feuilles -->
+  <path d="M38 178c-14-10-18-30-8-44 12 10 16 28 8 44z" fill="#b9cfa6"/>
+  <path d="M38 178c-3-14-4-27-8-44" stroke="#8fae7c" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M164 180c4-18 20-28 34-26-4 16-18 26-34 26z" fill="#e8c08f"/>
+  <path d="M164 180c10-10 20-18 34-26" stroke="#d29c62" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- pied -->
+  <path d="M74 112c-8 26-10 50 2 66 14 10 38 10 50 0 12-16 8-42-2-66z" fill="#f6ead2"/>
+  <path d="M84 124l10 8 10-8 10 8M80 142l12 8 12-8 12 8M82 160l12 7 12-7 10 7" stroke="#e2cfa8" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- visage -->
+  <circle cx="88" cy="138" r="4.5" fill="#4a3a2a"/><circle cx="112" cy="138" r="4.5" fill="#4a3a2a"/>
+  <circle cx="89.5" cy="136.5" r="1.5" fill="#fff"/><circle cx="113.5" cy="136.5" r="1.5" fill="#fff"/>
+  <path d="M94 147q6 5 12 0" stroke="#4a3a2a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="80" cy="148" rx="6" ry="3.5" fill="#f2a99a" opacity=".7"/><ellipse cx="120" cy="148" rx="6" ry="3.5" fill="#f2a99a" opacity=".7"/>
+  <!-- chapeau -->
+  <path d="M30 112c0-46 32-74 70-74s70 28 70 74c0 8-6 12-14 12H44c-8 0-14-4-14-12z" fill="#b5713f"/>
+  <path d="M30 112c0 8 6 12 14 12h112c8 0 14-4 14-12" fill="#f0dcb4" opacity=".9"/>
+  <path d="M52 76c10-18 28-26 46-26" stroke="#d99a66" stroke-width="7" fill="none" stroke-linecap="round" opacity=".7"/>
+  <circle cx="128" cy="70" r="5" fill="#c98552" opacity=".6"/><circle cx="146" cy="88" r="3.5" fill="#c98552" opacity=".6"/>
+</svg>

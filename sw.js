@@ -1,6 +1,6 @@
 // Cache hors connexion : l'appli et les fiches restent disponibles en forêt.
-const VERSION = "champiverif-v3";
-const FICHIERS = ["./", "index.html", "style.css", "app.js", "ia.js", "especes.js", "manifest.webmanifest", "icon.svg",
+const VERSION = "champiverif-v4";
+const FICHIERS = ["./", "index.html", "style.css", "app.js", "ia.js", "especes.js", "manifest.webmanifest", "icon.svg", "assets/cepe.svg", "assets/fond.svg",
   "vendor/leaflet/leaflet.css", "vendor/leaflet/leaflet.js"];
 
 self.addEventListener("install", (e) => {

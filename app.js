@@ -159,15 +159,16 @@ async function analyserPhoto(fichier) {
 function etapePhotos() {
   const nbOk = Object.values(session.photos).filter((p) => p.ok).length;
   $("#etape").innerHTML = `
-    <h1>Vérifier un champignon</h1>
-    <p class="intro">Prenez <strong>3 photos</strong> nettes, à la lumière du jour, puis répondez à quelques questions. L'application vous dira à quoi il ressemble, <strong>et surtout avec quoi il ne faut pas le confondre</strong>.</p>
+    <div class="accueil"><img src="assets/cepe.svg" alt="">
+      <div><h1>Qu'avez-vous trouvé ?</h1>
+      <p class="intro">Prenez <strong>3 photos</strong> nettes à la lumière du jour, puis répondez à quelques questions. Je vous dirai à quoi il ressemble, <strong>et surtout avec quoi il ne faut pas le confondre</strong>.</p></div></div>
     <div class="photos">
       ${PHOTOS.map((p) => {
         const ph = session.photos[p.cle];
         const etat = !ph ? "" : ph.ok ? "ok" : "ko";
         return `<label class="photo ${etat}">
           <input type="file" accept="image/*" capture="environment" data-cle="${p.cle}" hidden>
-          ${ph && ph.vignette ? `<img src="${ph.vignette}" alt="">` : `<span class="ico">📷</span>`}
+          ${ph && ph.vignette ? `<img src="${ph.vignette}" alt="">` : `<span class="ico">${{ dessus: "🍄", dessous: "🔍", pied: "🌱" }[p.cle]}</span>`}
           <strong>${p.label}</strong><small>${p.aide}</small>
           ${ph ? `<em class="etat">${ph.ok ? "✓ Photo exploitable" : "✗ " + esc(ph.raisons.join(", "))}</em>` : ""}
         </label>`;
@@ -294,7 +295,7 @@ async function etapeVerdict() {
   let v = calculerVerdict(rep, liste);
   let blocIA = "";
   if (session.ia) {
-    $("#etape").innerHTML = `<div class="chargement"><span class="roue"></span><p><strong>Analyse de la photo…</strong><br>
+    $("#etape").innerHTML = `<div class="chargement"><span class="roue" aria-hidden="true"></span><p><strong>Analyse de la photo…</strong><br>
       <small>La première fois, l'application télécharge son modèle de reconnaissance (environ 30 Mo). Ensuite, il fonctionne sans réseau.</small></p></div>`;
     const res = await session.ia;
     ({ v, blocIA } = fusionnerIA(v, res, liste));
