@@ -1,7 +1,8 @@
 // Base d'espèces – version 1 (Périgord / Sud-Ouest).
 // ⚠️ Contenu à faire relire par un mycologue ou un pharmacien avant diffusion.
 //
-// statut : "comestible" | "toxique" | "mortel"
+// statut : "comestible" | "deconseille" | "toxique" | "mortel"
+// sources : références consultées (à compléter pour chaque fiche)
 // mois   : mois d'apparition habituels (1 = janvier)
 // traits : valeurs ACCEPTÉES pour chaque question. Absence d'un trait = toutes valeurs possibles.
 //   dessous       : lames | tubes | plis | aiguillons | alveoles | autre
@@ -90,8 +91,12 @@ const ESPECES = [
       "Pied sans réseau, strié de brun ; chair blanc-jaunâtre qui bleuit légèrement",
       "Très commun en automne, sous les pins et les châtaigniers",
     ],
-    confusions: ["cepe-bordeaux", "bolet-blafard"],
+    confusions: ["cepe-bordeaux", "bolet-pulverulent", "bolet-blafard"],
     note: "Souvent ramassé avec les cèpes. Il bleuit, contrairement au cèpe de Bordeaux.",
+    sources: [
+      { titre: "Imleria badia – Wikipédia (en)", url: "https://en.wikipedia.org/wiki/Imleria_badia" },
+      { titre: "Liste rouge UICN – Imleria badia", url: "https://redlist.info/iucn/species_view/444094" },
+    ],
   },
   {
     id: "bolet-pied-rouge", nom: "Bolet à pied rouge", latin: "Neoboletus erythropus",
@@ -105,10 +110,14 @@ const ESPECES = [
     ],
     confusions: ["bolet-satan", "bolet-blafard"],
     note: "Comestible seulement après une cuisson prolongée (une vingtaine de minutes recommandée), qualité jugée moyenne. Pores rouges + bleuissement = toujours faire vérifier, à cause du bolet de Satan.",
+    sources: [
+      { titre: "Neoboletus luridiformis (Boletus erythropus) – Wikipédia (en)", url: "https://en.wikipedia.org/wiki/Neoboletus_luridiformis" },
+      { titre: "Łuczaj & Wilde – champignons consommés en Pologne, Dendrobiology 95", url: "https://www.idpan.poznan.pl/images/stories/dendrobiology/vol95/denbio.095.002.pdf" },
+    ],
   },
   {
     id: "bolet-blafard", nom: "Bolet blafard", latin: "Suillellus luridus",
-    statut: "toxique", mois: [6, 7, 8, 9, 10],
+    statut: "deconseille", mois: [6, 7, 8, 9, 10],
     traits: { pied: ["reseau_rouge"], dessous: ["tubes"], couleurDessous: ["rouge", "jaune"], chapeau: ["brun", "jaune"],
       anneau: ["non"], volve: ["non"], bleuit: ["oui"], milieu: ["foret", "prairie"], taille: ["moyen", "grand"] },
     criteres: [
@@ -118,6 +127,31 @@ const ESPECES = [
     ],
     confusions: ["bolet-pied-rouge", "bolet-satan"],
     note: "Comestibilité controversée : mangé bien cuit selon certains auteurs, déconseillé par d'autres. Des malaises avec l'alcool ont été signalés, sans que la cause soit démontrée. Classé ici « à éviter » par prudence.",
+    sources: [
+      { titre: "Suillellus luridus – Wikipédia (en)", url: "https://en.wikipedia.org/wiki/Suillellus_luridus" },
+      { titre: "Suillellus luridus – First Nature", url: "https://www.first-nature.com/fungi/suillellus-luridus.php" },
+    ],
+  },
+
+  {
+    id: "bolet-pulverulent", nom: "Bolet pulvérulent", latin: "Cyanoboletus pulverulentus",
+    statut: "deconseille", mois: [7, 8, 9, 10],
+    traits: { dessous: ["tubes"], couleurDessous: ["jaune"], chapeau: ["brun", "jaune"], pied: ["lisse", "points_rouges"],
+      anneau: ["non"], volve: ["non"], bleuit: ["oui"], milieu: ["foret"], taille: ["petit", "moyen"], touffe: ["non"] },
+    criteres: [
+      "Bleuit INSTANTANÉMENT en bleu-noir « tache d'encre » sur toutes ses parties, au moindre contact",
+      "Pores jaunes, chapeau brun à brun-olive",
+      "Pied jaune, roussâtre vers la base, sans réseau",
+      "Sous les chênes et les hêtres",
+    ],
+    confusions: ["bolet-bai", "bolet-pied-rouge"],
+    note: "Longtemps considéré comme comestible, mais il accumule l'arsenic (jusqu'à environ 1 300 mg/kg de matière sèche, surtout dans les tubes, sous une forme potentiellement cancérigène). Les auteurs de l'étude recommandent de ne plus le présenter comme comestible et de limiter sa consommation. Les contrôleurs suisses (VAPKO) conseillent, d'après les comptes rendus disponibles, au plus 100 g par repas, tubes retirés, quelques fois par an.",
+    sources: [
+      { titre: "Braeuer et al. 2018, Food Chemistry 242 : 225-231 – hyperaccumulation d'arsenic (texte intégral)", url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6118325/" },
+      { titre: "VAPKO – Nouvelle recommandation concernant le bolet pulvérulent", url: "https://www.vapko.ch/index.php/fr/news-fr/nouvelle-recommandation-concernant-le-bolet-pulverulent" },
+      { titre: "MycoDB – fiche Cyanoboletus pulverulentus", url: "https://www.mycodb.fr/fiche.php?genre=Cyanoboletus&espece=pulverulentus" },
+      { titre: "Cyanoboletus pulverulentus – Wikipédia (en)", url: "https://en.wikipedia.org/wiki/Cyanoboletus_pulverulentus" },
+    ],
   },
 
   // ---------- CHANTERELLES & CO ----------

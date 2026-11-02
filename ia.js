@@ -22,6 +22,7 @@ const IA_ESPECES = {
   "gyromitra esculenta": "gyromitre",
   "imleria badia": "bolet-bai", "xerocomus badius": "bolet-bai", "boletus badius": "bolet-bai",
   "neoboletus erythropus": "bolet-pied-rouge", "neoboletus luridiformis": "bolet-pied-rouge", "boletus erythropus": "bolet-pied-rouge",
+  "cyanoboletus pulverulentus": "bolet-pulverulent", "boletus pulverulentus": "bolet-pulverulent",
   "suillellus luridus": "bolet-blafard", "boletus luridus": "bolet-blafard",
 };
 const IA_GENRES_FICHE = { morchella: "morille", cortinarius: "cortinaires", lepiota: "lepiote-brune" };
@@ -95,7 +96,7 @@ async function reconnaitre(toiles) {
       const risqueGenre = IA_GENRES_RISQUE[genre] || null;
       const statut = fiche ? fiche.statut : null;
       // Danger : fiche toxique/mortelle, OU genre mortel (ex. toute amanite), OU genre à risque sans fiche
-      const danger = statut === "mortel" || statut === "toxique" || risqueGenre === "mortel" || (!fiche && !!risqueGenre);
+      const danger = statut === "mortel" || statut === "toxique" || statut === "deconseille" || risqueGenre === "mortel" || (!fiche && !!risqueGenre);
       return { ...x, id, fiche, statut, risqueGenre, danger };
     });
 }

@@ -5,6 +5,7 @@ const MOIS_LONG = ["janvier", "février", "mars", "avril", "mai", "juin", "juill
 const STATUT = {
   comestible: { label: "Comestible", classe: "s-comestible" },
   toxique: { label: "Toxique", classe: "s-toxique" },
+  deconseille: { label: "Déconseillé", classe: "s-toxique" },
   mortel: { label: "MORTEL", classe: "s-mortel" },
 };
 const PAR_ID = Object.fromEntries(ESPECES.map((e) => [e.id, e]));
@@ -262,7 +263,7 @@ function score(e, rep) {
 
 function calculerVerdict(rep, liste) {
   const mortels = liste.filter((e) => e.statut === "mortel");
-  const toxiques = liste.filter((e) => e.statut === "toxique");
+  const toxiques = liste.filter((e) => e.statut === "toxique" || e.statut === "deconseille");
   const comestibles = liste.filter((e) => e.statut === "comestible");
   const noms = (l) => l.map((e) => e.nom).join(", ");
   if (!rep.dessous || rep.dessous === "?") {
@@ -278,7 +279,7 @@ function calculerVerdict(rep, liste) {
       texte: `Vos réponses sont compatibles avec : <strong>${esc(noms(mortels))}</strong>. Ne consommez pas ce champignon. Ne le mélangez pas avec le reste de la cueillette.` };
   }
   if (toxiques.length) {
-    return { classe: "rouge", titre: "🔴 Risque de confusion avec une espèce toxique",
+    return { classe: "rouge", titre: "🔴 Risque de confusion avec une espèce toxique ou déconseillée",
       texte: `Vos réponses sont compatibles avec : <strong>${esc(noms(toxiques))}</strong>. Ne consommez pas sans vérification par un expert.` };
   }
   if (comestibles.length > 3) {
@@ -384,6 +385,8 @@ function ouvrirFiche(id) {
     <h3>Pour le reconnaître</h3>
     <ul>${e.criteres.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>
     ${e.note ? `<p class="note ${st.classe}">${esc(e.note)}</p>` : ""}
+    ${e.sources && e.sources.length ? `<h3>Sources</h3><ul class="sources">${e.sources.map((x) =>
+      `<li><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.titre)}</a></li>`).join("")}</ul>` : ""}
     ${e.confusions.length ? `<h3>Ne pas confondre avec</h3>
       <div class="chips">${e.confusions.map((c) => PAR_ID[c]).filter(Boolean).map((c) =>
         `<button type="button" class="chip-espece ${STATUT[c.statut].classe}" data-id="${c.id}">${esc(c.nom)} · ${STATUT[c.statut].label}</button>`).join("")}</div>` : ""}
@@ -437,7 +440,7 @@ function rendreSaison() {
   $("#saisonListe").innerHTML = `
     <p class="intro">En <strong>${MOIS_LONG[moisSaison - 1]}</strong>, ${du.length} espèces de la base peuvent sortir.</p>
     ${groupe(["mortel"], "☠️ Mortels à connaître ce mois-ci", "Ce sont eux qu'il faut savoir reconnaître en priorité.")}
-    ${groupe(["toxique"], "⚠️ Toxiques du moment")}
+    ${groupe(["toxique", "deconseille"], "⚠️ Toxiques et déconseillés du moment")}
     ${groupe(["comestible"], "🧺 Comestibles de saison")}
     ${absents.length ? `<h3>Peu probables en ${MOIS_LONG[moisSaison - 1]}</h3>
       <p class="aide">Si vous pensez en avoir trouvé un, soyez doublement prudent : c'est peut-être un sosie.</p>
@@ -448,7 +451,7 @@ function rendreSaison() {
 // =====================================================================
 //  FICHES
 // =====================================================================
-const ORDRE = { mortel: 0, toxique: 1, comestible: 2 };
+const ORDRE = { mortel: 0, toxique: 1, deconseille: 2, comestible: 3 };
 function rendreFiches() {
   const norm = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const q = norm($("#recherche").value.trim());
