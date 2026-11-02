@@ -452,7 +452,7 @@ const ORDRE = { mortel: 0, toxique: 1, comestible: 2 };
 function rendreFiches() {
   const norm = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const q = norm($("#recherche").value.trim());
-  const l = ESPECES.filter((e) => !q || norm(e.nom + " " + e.latin).includes(q))
+  const l = ESPECES.filter((e) => !q || norm(e.nom + " " + e.latin + " " + e.criteres.join(" ")).includes(q))
     .sort((a, b) => ORDRE[a.statut] - ORDRE[b.statut] || a.nom.localeCompare(b.nom, "fr"));
   $("#fichesListe").innerHTML = `<div class="cartes">${l.map(carteEspece).join("")}</div>
     <p class="aide">${ESPECES.length} espèces dans cette première version, centrée sur le Périgord.</p>`;

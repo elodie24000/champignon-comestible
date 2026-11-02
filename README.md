@@ -13,7 +13,7 @@ Application web (installable sur téléphone, fonctionne hors connexion) pour **
 | 📷 **Vérifier** | 3 photos (dessus, dessous, pied déterré) avec **contrôle de qualité automatique** (flou, trop sombre, surexposé, trop petit). Si aucune photo n'est exploitable, l'application répond « je ne peux pas me prononcer ». Ensuite, environ 9 questions simples (lames/éponge/plis, couleurs, anneau, volve, bleuissement…) éliminent les espèces incompatibles. Le verdict liste **en priorité les espèces dangereuses encore possibles**. |
 | 🗓️ **Saison** | Pour chaque mois : les mortels à connaître, les toxiques, les comestibles de saison et ceux « peu probables », qui signalent une confusion possible. |
 | 🗺️ **Carnet** | Observations datées et géolocalisées, carte précise (privée) **ou** vue partagée floutée par mailles de ~10 km, et histogramme mensuel. |
-| 📖 **Fiches** | 29 espèces du Périgord, dont 14 comestibles, 9 toxiques et 6 mortelles ou groupes mortels, avec critères, saison et « ne pas confondre avec ». |
+| 📖 **Fiches** | 32 espèces du Périgord, dont 16 comestibles, 10 toxiques et 6 mortelles ou groupes mortels, avec critères, saison et « ne pas confondre avec ». |
 | 🚨 **Urgence** | 15 / 112, centre antipoison de Bordeaux, conduite à tenir. |
 
 **Adresse de l'application :** https://elodie24000.github.io/champignon-comestible/ (hébergement gratuit GitHub Pages, branche `gh-pages`).
@@ -48,7 +48,7 @@ Pour publier une mise à jour : pousser le contenu sur la branche `gh-pages`.
   - Si la meilleure piste est sous **50 %** de certitude, elle répond « je ne peux pas me prononcer d'après la photo ».
   - Toute espèce toxique ou mortelle (ou tout genre mortel, comme *Amanita*) évoquée à **5 % ou plus** fait passer le verdict au rouge. L'IA peut aggraver un verdict, jamais l'adoucir.
 - **Validation automatique** (photos Wikipédia) : amanite tue-mouches, girolle, coulemelle, polypore soufré et coprin chevelu ont été reconnus à 94-100 %. Le **cèpe a été manqué** (pris pour un plutée à 70 %, et un cortinaire à 30 %, ce qui aurait déclenché l'alerte rouge).
-- **Couverture :** 26 des 29 espèces des fiches sont connues du modèle. Manquent l'oronge, le clitocybe de l'olivier et le cortinaire rocou, mais le genre *Cortinarius* déclenche quand même l'alerte.
+- **Couverture :** 29 des 32 espèces des fiches sont connues du modèle. Manquent l'oronge, le clitocybe de l'olivier et le cortinaire rocou, mais le genre *Cortinarius* déclenche quand même l'alerte.
 - **Limites :** les espèces sont danoises, et l'IA se trompe davantage sur les espèces méridionales. Certaines confusions sont impossibles à lever sur photo : petites lépiotes, cortinaires, amanites blanches jeunes. L'IA ne fait que proposer des pistes.
 
 ## Prochaines étapes envisagées

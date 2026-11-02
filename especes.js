@@ -8,6 +8,7 @@
 //   couleurDessous, chapeau : blanc | jaune | rouge | rose | brun | gris_noir | vert | violet
 //   anneau, volve, bleuit, touffe : oui | non
 //   milieu        : foret | prairie | bois
+//   pied (bolets) : reseau_clair | reseau_brun | reseau_rouge | points_rouges | lisse
 //   taille        : petit (<5 cm) | moyen (5–10 cm) | grand (>10 cm)
 // Pour les espèces mortelles, les traits sont volontairement LARGES :
 // mieux vaut les garder à tort dans la liste que les écarter à tort.
@@ -17,19 +18,19 @@ const ESPECES = [
   {
     id: "cepe-bordeaux", nom: "Cèpe de Bordeaux", latin: "Boletus edulis",
     statut: "comestible", mois: [8, 9, 10, 11],
-    traits: { dessous: ["tubes"], couleurDessous: ["blanc", "jaune", "vert"], chapeau: ["brun"],
+    traits: { pied: ["reseau_clair"], dessous: ["tubes"], couleurDessous: ["blanc", "jaune", "vert"], chapeau: ["brun"],
       anneau: ["non"], volve: ["non"], bleuit: ["non"], milieu: ["foret"], taille: ["moyen", "grand"], touffe: ["non"] },
     criteres: [
       "Dessous en éponge (tubes), blanc puis jaune-verdâtre",
       "Pied ventru, couvert d'un fin réseau blanc en haut",
-      "Chair blanche qui ne change pas de couleur à la coupe",
+      "Chair blanche qui ne change pas de couleur à la coupe : s'il bleuit, ce n'est PAS un cèpe de Bordeaux",
     ],
-    confusions: ["bolet-amer", "bolet-satan"],
+    confusions: ["bolet-amer", "bolet-satan", "bolet-bai"],
   },
   {
     id: "cepe-tete-negre", nom: "Cèpe tête-de-nègre", latin: "Boletus aereus",
     statut: "comestible", mois: [7, 8, 9, 10],
-    traits: { dessous: ["tubes"], couleurDessous: ["blanc", "jaune", "vert"], chapeau: ["brun", "gris_noir"],
+    traits: { pied: ["reseau_clair", "reseau_brun"], dessous: ["tubes"], couleurDessous: ["blanc", "jaune", "vert"], chapeau: ["brun", "gris_noir"],
       anneau: ["non"], volve: ["non"], bleuit: ["non"], milieu: ["foret"], taille: ["moyen", "grand"], touffe: ["non"] },
     criteres: [
       "Chapeau brun très foncé, d'aspect velouté",
@@ -41,7 +42,7 @@ const ESPECES = [
   {
     id: "cepe-ete", nom: "Cèpe d'été (cèpe réticulé)", latin: "Boletus reticulatus",
     statut: "comestible", mois: [5, 6, 7, 8, 9],
-    traits: { dessous: ["tubes"], couleurDessous: ["blanc", "jaune", "vert"], chapeau: ["brun"],
+    traits: { pied: ["reseau_clair"], dessous: ["tubes"], couleurDessous: ["blanc", "jaune", "vert"], chapeau: ["brun"],
       anneau: ["non"], volve: ["non"], bleuit: ["non"], milieu: ["foret"], taille: ["moyen", "grand"], touffe: ["non"] },
     criteres: [
       "Le cèpe de l'été : oui, on peut trouver des cèpes en juin-juillet après des orages",
@@ -53,7 +54,7 @@ const ESPECES = [
   {
     id: "bolet-amer", nom: "Bolet amer (bolet de fiel)", latin: "Tylopilus felleus",
     statut: "toxique", mois: [7, 8, 9, 10],
-    traits: { dessous: ["tubes"], couleurDessous: ["blanc", "rose"], chapeau: ["brun"],
+    traits: { pied: ["reseau_brun"], dessous: ["tubes"], couleurDessous: ["blanc", "rose"], chapeau: ["brun"],
       bleuit: ["non"], volve: ["non"], anneau: ["non"], milieu: ["foret"], taille: ["moyen", "grand"] },
     criteres: [
       "Pores qui deviennent ROSÉS en vieillissant",
@@ -66,15 +67,57 @@ const ESPECES = [
   {
     id: "bolet-satan", nom: "Bolet de Satan", latin: "Rubroboletus satanas",
     statut: "toxique", mois: [6, 7, 8, 9],
-    traits: { dessous: ["tubes"], couleurDessous: ["rouge", "jaune"], chapeau: ["blanc", "gris_noir"],
+    traits: { pied: ["reseau_rouge"], dessous: ["tubes"], couleurDessous: ["rouge", "jaune"], chapeau: ["blanc", "gris_noir"],
       bleuit: ["oui"], volve: ["non"], anneau: ["non"], milieu: ["foret"], taille: ["moyen", "grand"] },
     criteres: [
       "Chapeau blanc grisâtre, pores ROUGES",
       "Pied ventru jaune et rouge",
       "Chair qui bleuit à la coupe, odeur désagréable en vieillissant",
     ],
-    confusions: ["cepe-bordeaux"],
+    confusions: ["cepe-bordeaux", "bolet-pied-rouge", "bolet-blafard"],
     note: "Provoque de violents troubles digestifs.",
+  },
+
+  // ---------- BOLETS QUI BLEUISSENT ----------
+  {
+    id: "bolet-bai", nom: "Bolet bai", latin: "Imleria badia (Xerocomus badius)",
+    statut: "comestible", mois: [8, 9, 10, 11],
+    traits: { pied: ["lisse"], dessous: ["tubes"], couleurDessous: ["jaune", "vert"], chapeau: ["brun"],
+      anneau: ["non"], volve: ["non"], bleuit: ["oui"], milieu: ["foret"], taille: ["moyen", "grand"], touffe: ["non"] },
+    criteres: [
+      "Chapeau brun châtaigne, un peu visqueux par temps humide",
+      "Pores jaune-vert qui BLEUISSENT quand on appuie dessus",
+      "Pied sans réseau, strié de brun ; chair blanc-jaunâtre qui bleuit légèrement",
+      "Très commun en automne, sous les pins et les châtaigniers",
+    ],
+    confusions: ["cepe-bordeaux", "bolet-blafard"],
+    note: "Souvent ramassé avec les cèpes. Il bleuit, contrairement au cèpe de Bordeaux.",
+  },
+  {
+    id: "bolet-pied-rouge", nom: "Bolet à pied rouge", latin: "Neoboletus erythropus",
+    statut: "comestible", mois: [6, 7, 8, 9, 10, 11],
+    traits: { pied: ["points_rouges"], dessous: ["tubes"], couleurDessous: ["rouge"], chapeau: ["brun"],
+      anneau: ["non"], volve: ["non"], bleuit: ["oui"], milieu: ["foret"], taille: ["moyen", "grand"], touffe: ["non"] },
+    criteres: [
+      "Pores ROUGES, pied ponctué de petits points rouges (pas de réseau)",
+      "Chair jaune qui bleuit instantanément et intensément à la coupe",
+      "Chapeau brun foncé, velouté",
+    ],
+    confusions: ["bolet-satan", "bolet-blafard"],
+    note: "Toxique cru : à consommer uniquement bien cuit. Pores rouges + bleuissement = toujours faire vérifier, à cause du bolet de Satan.",
+  },
+  {
+    id: "bolet-blafard", nom: "Bolet blafard", latin: "Suillellus luridus",
+    statut: "toxique", mois: [6, 7, 8, 9, 10],
+    traits: { pied: ["reseau_rouge"], dessous: ["tubes"], couleurDessous: ["rouge", "jaune"], chapeau: ["brun", "jaune"],
+      anneau: ["non"], volve: ["non"], bleuit: ["oui"], milieu: ["foret", "prairie"], taille: ["moyen", "grand"] },
+    criteres: [
+      "Pores orange à rouges qui bleuissent",
+      "Pied couvert d'un RÉSEAU rouge (des points chez le bolet à pied rouge)",
+      "Chair rouge vineux à la base du pied",
+    ],
+    confusions: ["bolet-pied-rouge", "bolet-satan"],
+    note: "Mangé bien cuit par certains, mais provoque des malaises s'il est consommé avec de l'alcool : classé ici à éviter.",
   },
 
   // ---------- CHANTERELLES & CO ----------
@@ -438,6 +481,18 @@ const QUESTIONS = [
     cle: "bleuit", titre: "La chair bleuit-elle quand on la coupe ou la presse ?",
     sauf: (r) => r.dessous !== "tubes",
     choix: [{ v: "oui", label: "Oui, elle bleuit" }, { v: "non", label: "Non" }],
+  },
+  {
+    cle: "pied", titre: "Que voit-on sur le pied ?",
+    aide: "Regardez de près le haut du pied, sous l'éponge.",
+    sauf: (r) => r.dessous !== "tubes",
+    choix: [
+      { v: "reseau_clair", label: "Un fin filet clair", detail: "réseau blanc ou crème" },
+      { v: "reseau_brun", label: "Un filet brun foncé", detail: "réseau sombre, en relief" },
+      { v: "reseau_rouge", label: "Un filet rouge", detail: "réseau rouge sur fond jaune" },
+      { v: "points_rouges", label: "Des petits points rouges", detail: "comme saupoudré" },
+      { v: "lisse", label: "Ni filet ni points", detail: "lisse ou strié" },
+    ],
   },
   {
     cle: "touffe", titre: "Pousse-t-il en touffe serrée (plusieurs pieds soudés) ?",

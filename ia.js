@@ -20,6 +20,9 @@ const IA_ESPECES = {
   "lepista nuda": "pied-bleu", "clitocybe nuda": "pied-bleu", "entoloma sinuatum": "entolome-livide",
   "pleurotus ostreatus": "pleurote", "hypholoma fasciculare": "hypholome-touffe", "galerina marginata": "galere-marginee",
   "gyromitra esculenta": "gyromitre",
+  "imleria badia": "bolet-bai", "xerocomus badius": "bolet-bai", "boletus badius": "bolet-bai",
+  "neoboletus erythropus": "bolet-pied-rouge", "neoboletus luridiformis": "bolet-pied-rouge", "boletus erythropus": "bolet-pied-rouge",
+  "suillellus luridus": "bolet-blafard", "boletus luridus": "bolet-blafard",
 };
 const IA_GENRES_FICHE = { morchella: "morille", cortinarius: "cortinaires", lepiota: "lepiote-brune" };
 // Genres dont certaines espèces sont mortelles ou toxiques : alerte même si l'espèce n'a pas de fiche
