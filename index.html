@@ -8,7 +8,11 @@
   <meta name="theme-color" content="#fbf6ec">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/cepe.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="assets/cepe.svg">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Champi'Vérif">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap">
@@ -18,7 +22,10 @@
 <body>
   <header class="entete">
     <div class="marque"><img src="assets/cepe.svg" alt="">Champi'Vérif</div>
-    <button class="btn-urgence" id="btnUrgence" type="button">🚨 Urgence</button>
+    <div class="entete-actions">
+      <button class="btn-installer" id="btnInstaller" type="button" hidden>📲 Installer</button>
+      <button class="btn-urgence" id="btnUrgence" type="button">🚨 Urgence</button>
+    </div>
   </header>
   <p class="bandeau">Aucune application ne peut garantir qu'un champignon est comestible. Faites toujours vérifier votre cueillette par un pharmacien ou un mycologue.</p>
 

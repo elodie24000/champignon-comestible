@@ -246,3 +246,11 @@ dialog::backdrop { background: rgba(74, 63, 51, .35); -webkit-backdrop-filter: b
   .choix { grid-template-columns: 1fr; }
   .accueil img { width: 76px; height: 76px; }
 }
+
+/* Installation */
+.entete-actions { display: flex; gap: 6px; align-items: center; }
+.btn-installer { background: var(--vert-clair); color: var(--vert-fonce); border: 1px solid rgba(124, 154, 106, .3); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: .9rem; }
+.btn-installer[hidden] { display: none; }
+.etapes-install { padding-left: 1.3rem; display: grid; gap: 10px; }
+.pictos { display: inline-block; padding: 0 4px; border-radius: 6px; background: var(--gris-clair); }
+@media (max-width: 380px) { .marque { font-size: 1.05rem; } .marque img { width: 28px; height: 28px; } .btn-installer, .btn-urgence { padding: 6px 10px; font-size: .82rem; } }

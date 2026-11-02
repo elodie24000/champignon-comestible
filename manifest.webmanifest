@@ -1,11 +1,19 @@
 {
+  "id": "./",
   "name": "Champi'Vérif",
   "short_name": "Champi'Vérif",
   "description": "Vérifier un champignon pas à pas, connaître les sosies dangereux et recenser ses cueillettes.",
   "lang": "fr",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#fbf6ec",
   "theme_color": "#fbf6ec",
-  "icons": [{ "src": "assets/cepe.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+  "icons": [
+    { "src": "assets/icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icone-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/cepe.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
 }

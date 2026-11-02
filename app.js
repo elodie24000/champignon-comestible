@@ -568,6 +568,39 @@ async function rendreCollectif() {
   brancherCartes($("#carnet"));
 }
 
+// ---------- Installation sur l'écran d'accueil ----------
+const dejaInstallee = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const estIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+let invitationInstall = null;
+const btnInstaller = $("#btnInstaller");
+window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); invitationInstall = e; btnInstaller.hidden = false; });
+window.addEventListener("appinstalled", () => { btnInstaller.hidden = true; invitationInstall = null; });
+if (!dejaInstallee) btnInstaller.hidden = false; // visible partout : sur iPhone, on explique la marche à suivre
+btnInstaller.addEventListener("click", async () => {
+  if (invitationInstall) {
+    invitationInstall.prompt();
+    const { outcome } = await invitationInstall.userChoice;
+    if (outcome === "accepted") btnInstaller.hidden = true;
+    invitationInstall = null;
+    return;
+  }
+  ouvrirModale(estIOS ? `
+    <h2>📲 Installer sur iPhone / iPad</h2>
+    <ol class="etapes-install">
+      <li>Ouvrez cette page dans <strong>Safari</strong> (pas dans Gmail, Messenger ou une autre appli).</li>
+      <li>Touchez le bouton <strong>Partager</strong> <span class="pictos">⬆️</span> en bas de l'écran.</li>
+      <li>Faites défiler et choisissez <strong>« Sur l'écran d'accueil »</strong>.</li>
+      <li>Touchez <strong>Ajouter</strong> : le petit cèpe apparaît avec vos autres applis.</li>
+    </ol>` : `
+    <h2>📲 Installer l'application</h2>
+    <ol class="etapes-install">
+      <li>Ouvrez cette page dans <strong>Chrome</strong> (ou Samsung Internet).</li>
+      <li>Touchez le menu <strong>⋮</strong> en haut à droite.</li>
+      <li>Choisissez <strong>« Installer l'application »</strong> ou <strong>« Ajouter à l'écran d'accueil »</strong>.</li>
+    </ol>
+    <p class="aide">Si le lien a été ouvert depuis une messagerie (Gmail, WhatsApp…), touchez d'abord « Ouvrir dans Chrome ».</p>`);
+});
+
 // ---------- Démarrage ----------
 synchroniser();
 nouvelleSession();
